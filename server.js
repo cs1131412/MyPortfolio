@@ -5,9 +5,12 @@ import dns from 'dns'
 import mongoose from 'mongoose'
 import app from './server/express.js'
 
-// Node 24.14+ can fail to resolve MongoDB Atlas "mongodb+srv" addresses with the
-// system DNS on some networks; using a public DNS server avoids that.
-dns.setServers(['8.8.8.8'])
+// Some systems (Node 24.14+) can't resolve Atlas "mongodb+srv" addresses with the
+// system DNS; the course skeleton forces 8.8.8.8 for that. It's opt-in here because
+// networks that block outside DNS servers (e.g. VPNs) then can't connect at all.
+if (process.env.DNS_SERVER) {
+  dns.setServers([process.env.DNS_SERVER])
+}
 
 if (!config.mongoUri || !config.jwtSecret) {
   console.error('Missing MONGODB_URI or JWT_SECRET. Copy .env.example to .env and fill it in.')
