@@ -39,17 +39,12 @@ const signout = (req, res) => {
   return res.status(200).json({ message: 'signed out' })
 }
 
-// Middleware: rejects the request with 401 unless it carries a valid JWT, either
-// as "Authorization: Bearer <token>" or in the "t" cookie. On success the token's
-// payload ({ _id }) is available as req.auth.
+// Middleware: rejects the request with 401 unless it carries a valid JWT in the
+// "Authorization: Bearer <token>" header (as in the course material). On success
+// the token's payload ({ _id }) is available as req.auth.
 const requireSignin = expressjwt({
   secret: config.jwtSecret,
   algorithms: ['HS256'],
-  getToken: (req) => {
-    const header = req.headers.authorization
-    if (header && header.startsWith('Bearer ')) return header.slice('Bearer '.length)
-    return req.cookies?.t
-  },
 })
 
 // Middleware: only lets a signed-in user change their own account (403 otherwise).
