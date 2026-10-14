@@ -1,0 +1,34 @@
+{
+  "name": "myportfolio",
+  "version": "1.0.0",
+  "description": "COMP229 Assignment 2 - Portfolio REST API (Node.js, Express, MongoDB)",
+  "type": "module",
+  "author": "Colby Smith",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "server": "nodemon -L server.js",
+    "dev": "npm --prefix client run dev"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "compression": "^1.8.1",
+    "concurrently": "^10.0.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "crypto": "^1.0.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-jwt": "^8.5.1",
+    "global": "^4.4.0",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "lodash": "^4.18.1",
+    "method-override": "^3.0.0",
+    "mongodb": "^7.2.0",
+    "mongoose": "^9.6.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

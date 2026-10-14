@@ -1,0 +1,538 @@
+/* Global styles for the portfolio site.
+   Colours are defined once as variables and swapped for dark mode. */
+
+:root {
+  --color-text: #3d4451;
+  --color-heading: #111827;
+  --color-muted: #6b7280;
+  --color-bg: #ffffff;
+  --color-surface: #f5f7fa;
+  --color-border: #e3e6eb;
+  --color-accent: #1f6feb;
+  --color-accent-text: #ffffff;
+  --color-error: #c62828;
+  --color-success: #2e8b57;
+  --color-success-bg: #e8f5ee;
+
+  --font-body: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --content-width: 1000px;
+
+  color-scheme: light dark;
+  font: 17px/1.6 var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text: #c9ced6;
+    --color-heading: #f3f4f6;
+    --color-muted: #9ca3af;
+    --color-bg: #14161b;
+    --color-surface: #1c1f26;
+    --color-border: #2c303a;
+    --color-accent: #5b9dff;
+    --color-accent-text: #0b1220;
+    --color-error: #ff8a80;
+    --color-success: #4cc38a;
+    --color-success-bg: #13261d;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Always reserve scrollbar space so the layout doesn't shift between short and long pages */
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+}
+
+h1,
+h2,
+h3 {
+  color: var(--color-heading);
+  line-height: 1.2;
+}
+
+a {
+  color: var(--color-accent);
+}
+
+/* Visible outline when navigating with the keyboard */
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------- Page frame ---------- */
+
+/* Footer sticks to the bottom on short pages */
+.site {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page {
+  flex: 1;
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+/* ---------- Header & navigation ---------- */
+
+/* Full-width bar; .header-inner lines the logo and links up with the page content */
+.site-header {
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--color-heading);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.logo-shape {
+  fill: var(--color-accent);
+}
+
+.logo-initials {
+  fill: var(--color-accent-text);
+  font: 700 38px var(--font-body);
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-links a {
+  display: block;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  background: var(--color-border);
+}
+
+/* Highlight for the current page (class added by NavLink) */
+.nav-links a.active {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+/* ---------- Shared components ---------- */
+
+.button {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.button:hover {
+  filter: brightness(1.1);
+}
+
+/* Outlined variant for a less prominent action */
+.button-secondary {
+  background: transparent;
+  color: var(--color-accent);
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Bordered content box used for highlighted sections */
+.panel {
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+}
+
+/* Small label shown above or below a heading */
+.eyebrow {
+  margin: 0;
+  color: var(--color-accent);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Home ---------- */
+
+.hero {
+  padding: 2rem 0 2.5rem;
+}
+
+.hero h1 {
+  margin: 0.25rem 0 1rem;
+  font-size: clamp(2rem, 6vw, 3rem);
+}
+
+.lead {
+  max-width: 60ch;
+  margin: 0 0 1.75rem;
+  font-size: 1.15rem;
+}
+
+/* ---------- About ---------- */
+
+/* Photo beside text on wide screens, stacked on narrow ones */
+.about {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.about-photo {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.about-text h1 {
+  margin-top: 0;
+}
+
+.about-name {
+  margin: 0 0 0.25rem;
+}
+
+.about-text .eyebrow {
+  margin-bottom: 1rem;
+}
+
+.about-text .button {
+  margin-top: 0.5rem;
+}
+
+/* ---------- Cards (Projects & Services) ---------- */
+
+.page-intro {
+  margin-top: -0.5rem;
+  color: var(--color-muted);
+}
+
+/* As many columns as fit, each at least 280px wide */
+.card-grid {
+  display: grid;
+  /* min() stops a column being wider than very small screens */
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Wider minimum so the four projects sit in a 2 x 2 grid on desktop */
+.project-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr));
+}
+
+.card {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+
+.card-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.card-body {
+  padding: 1.1rem 1.25rem 1.25rem;
+}
+
+.card h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.2rem;
+}
+
+.card-context {
+  margin: 0 0 0.75rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.project-card h3 {
+  margin: 0.9rem 0 0.2rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+}
+
+.project-card p {
+  margin: 0;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag-list li {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--color-border);
+  font-size: 0.8rem;
+}
+
+.service-card {
+  padding: 1.5rem;
+}
+
+.service-icon {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.service-card p {
+  margin: 0.5rem 0 0;
+}
+
+.services-cta {
+  margin-top: 2rem;
+}
+
+/* ---------- Education ---------- */
+
+.qualification-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* Credential on the left, dates on the right; wraps on narrow screens */
+.qualification-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+
+.qualification h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.qualification-dates {
+  margin: 0;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.qualification-institution {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+}
+
+.qualification-details {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+}
+
+/* ---------- Contact ---------- */
+
+/* Info panel beside the form on wide screens, stacked on narrow ones */
+.contact-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  align-items: start;
+  margin-top: 1.5rem;
+}
+
+.contact-panel h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+}
+
+.contact-details {
+  margin: 0;
+}
+
+.contact-details dt {
+  margin-top: 0.9rem;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.contact-details dd {
+  margin: 0.1rem 0 0;
+  overflow-wrap: anywhere; /* long email addresses wrap instead of overflowing */
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1rem;
+}
+
+.form-field {
+  margin-bottom: 1rem;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.form-field textarea {
+  resize: vertical;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.form-field [aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+.field-error {
+  margin: 0.3rem 0 0;
+  color: var(--color-error);
+  font-size: 0.9rem;
+}
+
+.form-note {
+  margin: 0 0 1rem;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.contact-form .button {
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Thank-you banner shown on Home after the contact form is submitted */
+.confirmation {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1.25rem;
+  border: 1px solid var(--color-success);
+  border-radius: 8px;
+  background: var(--color-success-bg);
+  color: var(--color-heading);
+}
+
+@media (max-width: 700px) {
+  .contact-layout,
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .about {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .about-photo {
+    max-width: 260px;
+  }
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 600px) {
+  .header-inner {
+    justify-content: center;
+  }
+
+  .nav-links {
+    justify-content: center;
+  }
+}
