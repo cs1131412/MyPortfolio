@@ -1,76 +1,90 @@
-import User from "../models/user.model.js";
-import extend from "lodash/extend.js";
-import errorHandler from "./error.controller.js";
+// User controller: CRUD handlers for the /api/users routes (based on the course
+// skeleton). Password hashes and salts are never sent back in responses.
+import User from '../models/user.model.js'
+import extend from 'lodash/extend.js'
+import pick from 'lodash/pick.js'
+import errorHandler from '../helpers/dbErrorHandler.js'
+
+// Clients may only set these; "password" is a virtual that hashes itself
+// (see user.model.js), so hashed_password and salt can't be set directly.
+const editableFields = ['name', 'email', 'password']
+
+// Copy of a user document without the password hash and salt.
+const withoutSecrets = (user) => {
+  const { hashed_password, salt, ...safeUser } = user.toObject() // eslint-disable-line no-unused-vars
+  return safeUser
+}
+
+// POST /api/users — add a new user (sign up)
 const create = async (req, res) => {
-  const user = new User(req.body);
+  const user = new User(pick(req.body, editableFields))
   try {
-    await user.save();
-    return res.status(200).json({
-      message: "Successfully signed up!",
-    });
+    await user.save()
+    return res.status(200).json({ message: 'Successfully signed up!' })
   } catch (err) {
-    return res.status(400).json({
-      error: errorHandler.getErrorMessage(err),
-    });
+    return res.status(400).json({ error: errorHandler.getErrorMessage(err) })
   }
-};
+}
+
+// GET /api/users — get all users (public fields only)
 const list = async (req, res) => {
   try {
-    let users = await User.find().select("name email updated created");
-    res.json(users);
+    const users = await User.find().select('name email updated created')
+    res.json(users)
   } catch (err) {
-    return res.status(400).json({
-      error: errorHandler.getErrorMessage(err),
-    });
+    return res.status(400).json({ error: errorHandler.getErrorMessage(err) })
   }
-};
-const userByID = async (req, res, next, id) => {
+}
+
+// Middleware: loads the user named by :userId into req.profile
+// (hasAuthorization in auth.controller.js compares it with the signed-in user).
+const userByID = async (req, res, next) => {
   try {
-    let user = await User.findById(id);
-    if (!user)
-      return res.status(400).json({
-        error: "User not found",
-      });
-    req.profile = user;
-    next();
+    const user = await User.findById(req.params.userId)
+    if (!user) return res.status(404).json({ error: 'User not found' })
+    req.profile = user
+    next()
   } catch (err) {
-    return res.status(400).json({
-      error: "Could not retrieve user",
-    });
+    // A malformed id (not a valid ObjectId) throws a CastError.
+    return res.status(400).json({ error: 'Invalid user id' })
   }
-};
+}
+
+// GET /api/users/:userId — get a user by id
 const read = (req, res) => {
-  req.profile.hashed_password = undefined;
-  req.profile.salt = undefined;
-  return res.json(req.profile);
-};
+  return res.json(withoutSecrets(req.profile))
+}
+
+// PUT /api/users/:userId — update a user by id
 const update = async (req, res) => {
   try {
-    let user = req.profile;
-    user = extend(user, req.body);
-    user.updated = Date.now();
-    await user.save();
-    user.hashed_password = undefined;
-    user.salt = undefined;
-    res.json(user);
+    const user = extend(req.profile, pick(req.body, editableFields))
+    user.updated = Date.now()
+    await user.save()
+    res.json(withoutSecrets(user))
   } catch (err) {
-    return res.status(400).json({
-      error: errorHandler.getErrorMessage(err),
-    });
+    return res.status(400).json({ error: errorHandler.getErrorMessage(err) })
   }
-};
+}
+
+// DELETE /api/users/:userId — remove a user by id
 const remove = async (req, res) => {
   try {
-    let user = req.profile;
-    let deletedUser = await user.deleteOne();
-    deletedUser.hashed_password = undefined;
-    deletedUser.salt = undefined;
-    res.json(deletedUser);
+    await req.profile.deleteOne()
+    res.json({ message: 'User deleted', user: withoutSecrets(req.profile) })
   } catch (err) {
-    return res.status(400).json({
-      error: errorHandler.getErrorMessage(err),
-    });
+    return res.status(400).json({ error: errorHandler.getErrorMessage(err) })
   }
-};
-export default { create, userByID, read, list, remove, update };
+}
 
+// DELETE /api/users — remove all users
+const removeAll = async (req, res) => {
+  try {
+    const result = await User.deleteMany({})
+    res.json({ message: 'All users deleted', deletedCount: result.deletedCount })
+  } catch (err) {
+    return res.status(400).json({ error: errorHandler.getErrorMessage(err) })
+  }
+}
+
+export default { create, list, userByID, read, update, remove, removeAll }

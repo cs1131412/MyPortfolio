@@ -6,6 +6,9 @@ import cors from 'cors'
 import helmet from 'helmet'
 import userRoutes from './routes/user.routes.js'
 import authRoutes from './routes/auth.routes.js'
+import contactRoutes from './routes/contact.routes.js'
+import projectRoutes from './routes/project.routes.js'
+import qualificationRoutes from './routes/qualification.routes.js'
 
 const app = express()
 
@@ -20,6 +23,14 @@ app.use(cors())
 // API routes
 app.use('/', userRoutes)
 app.use('/', authRoutes)
+app.use('/', contactRoutes)
+app.use('/', projectRoutes)
+app.use('/', qualificationRoutes)
+
+// Unknown API paths get a JSON 404 instead of Express's default HTML page.
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: `No route for ${req.method} ${req.originalUrl}` })
+})
 
 // Error handler: invalid or missing JWTs become 401s, anything else a 400.
 // eslint-disable-next-line no-unused-vars

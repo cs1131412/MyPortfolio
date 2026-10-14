@@ -1,56 +1,64 @@
+// Authentication controller (Week 6): sign in / sign out with JWTs, plus
+// middleware that protects routes.
 import User from '../models/user.model.js'
 import jwt from 'jsonwebtoken'
-
-import { expressjwt } from "express-jwt";
+import { expressjwt } from 'express-jwt'
 import config from './../../config/config.js'
 
+const TOKEN_LIFETIME_SECONDS = 24 * 60 * 60 // tokens (and the cookie) last one day
 
-const signin = async (req, res) => { 
-try {
-let user = await User.findOne({ "email": req.body.email }) 
-if (!user)
-return res.status('401').json({ error: "User not found" }) 
-if (!user.authenticate(req.body.password)) {
-return res.status('401').send({ error: "Email and password don't match." })
+// POST /auth/signin — check email + password, then return a signed JWT
+const signin = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email })
+    if (!user) return res.status(401).json({ error: 'User not found' })
+
+    if (!user.authenticate(req.body.password)) {
+      return res.status(401).json({ error: "Email and password don't match." })
+    }
+
+    const token = jwt.sign({ _id: user._id }, config.jwtSecret, {
+      expiresIn: TOKEN_LIFETIME_SECONDS,
+    })
+
+    // Also store the token in an HTTP-only cookie ("t") so browsers send it automatically.
+    res.cookie('t', token, { httpOnly: true, maxAge: TOKEN_LIFETIME_SECONDS * 1000 })
+
+    return res.json({
+      token,
+      user: { _id: user._id, name: user.name, email: user.email },
+    })
+  } catch (err) {
+    return res.status(401).json({ error: 'Could not sign in' })
+  }
 }
-const token = jwt.sign({ _id: user._id }, config.jwtSecret) 
-res.cookie('t', token, { expire: new Date() + 9999 }) 
-return res.json({
-token, 
-user: {
-_id: user._id, 
-name: user.name,
-email: user.email 
+
+// GET /auth/signout — clear the token cookie
+const signout = (req, res) => {
+  res.clearCookie('t')
+  return res.status(200).json({ message: 'signed out' })
 }
+
+// Middleware: rejects the request with 401 unless it carries a valid JWT, either
+// as "Authorization: Bearer <token>" or in the "t" cookie. On success the token's
+// payload ({ _id }) is available as req.auth.
+const requireSignin = expressjwt({
+  secret: config.jwtSecret,
+  algorithms: ['HS256'],
+  getToken: (req) => {
+    const header = req.headers.authorization
+    if (header && header.startsWith('Bearer ')) return header.slice('Bearer '.length)
+    return req.cookies?.t
+  },
 })
-} catch (err) {
-return res.status('401').json({ error: "Could not sign in" }) 
-}
-}
 
-const signout = (req, res) => { 
-res.clearCookie("t")
-return res.status(200).json({ 
-message: "signed out"
-}) 
-}
-const requireSignin = expressjwt({ 
-secret: config.jwtSecret, 
-algorithms: ["HS256"],
-
-userProperty: 'auth'
-})
-
-const hasAuthorization = (req, res, next) => { 
-const authorized = req.profile && req.auth
-&& req.profile._id ==  req.auth._id 
-if (!(authorized)) {
-return res.status(403).json({ 
-error: "User is not authorized"
-}) 
-} 
-next()
+// Middleware: only lets a signed-in user change their own account (403 otherwise).
+const hasAuthorization = (req, res, next) => {
+  const authorized = req.profile && req.auth && String(req.profile._id) === String(req.auth._id)
+  if (!authorized) {
+    return res.status(403).json({ error: 'User is not authorized' })
+  }
+  next()
 }
 
 export default { signin, signout, requireSignin, hasAuthorization }
-
