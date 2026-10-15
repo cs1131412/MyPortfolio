@@ -12,3 +12,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .DS_Store
+
+# Machine-specific Postman copy (points at this PC's LAN IP)
+postman/*.LAN.postman_collection.json
