@@ -101,21 +101,23 @@ Behaviour:
 
 ## 9. Validation Checklist
 
+✅ = verified 2026-10-14: automated end-to-end tests (88 checks) and the Postman collection (41 requests, 64 assertions) against MongoDB Atlas, plus the screenshots in the submission document.
+
 | ID | Check | ✓ |
 |---|---|---|
-| SET-2 | `npm run dev` in `client/` serves 5173 and 5000 | ☐ |
-| SRV-1 | Welcome message at http://localhost:5000/ | ☐ |
-| SRV-2 | "Connected to the database!" in console | ☐ |
-| DB-1 | Four collections visible in Atlas `Portfolio` | ☐ |
-| API | All 24 endpoints return the expected status and body | ☐ |
-| AUTH | Sign-in token works; no token gives 401; wrong user gives 403; sign-out works | ☐ |
-| SEC-1 | `git ls-files` contains no `.env`; no URI in source | ☐ |
+| SET-2 | `npm run dev` in `client/` serves 5173 and 5000 | ✅ |
+| SRV-1 | Welcome message at http://localhost:5000/ | ✅ |
+| SRV-2 | "Connected to the database!" in console | ✅ |
+| DB-1 | Four collections visible in Atlas `Portfolio` | ✅ |
+| API | All 24 endpoints return the expected status and body | ✅ |
+| AUTH | Sign-in token works; no token gives 401; wrong user gives 403; sign-out works | ✅ |
+| SEC-1 | `git ls-files` contains no `.env`; no URI in source | ✅ |
 
 ## 10. Submission
 
 - [ ] Zip of the project, **without `node_modules`**, `.env` or `.rar`
-- [ ] GitHub link: https://github.com/cs1131412/MyPortfolio
-- [ ] Word document with screenshots: Atlas DB, welcome message, DB connection console, and Postman/Thunder Client tests
+- [x] GitHub link: https://github.com/cs1131412/MyPortfolio
+- [x] Word document with screenshots: Atlas DB, welcome message, DB connection console, and Postman/Thunder Client tests
 
 ## 11. Out of Scope
 
