@@ -32,6 +32,8 @@ npm install            # front end dependencies
 
 ### 3. Configure
 
+Either use the provided .env, or make your own:
+
 Copy `.env.example` to `.env` in the project root and fill it in:
 
 ```
@@ -148,4 +150,4 @@ I used Claude Code (Anthropic) as a coding assistant for this assignment, follow
 - **Specify:** together we wrote `SPEC.md` from the assignment requirements.
 - **Generate:** Claude Code reviewed and compared the course skeleton versions, generated the models, controllers, routes and authentication code, and found and fixed several bugs in the skeleton. It also wrote the Postman collection and helped put together the screenshot document.
 - **Test:** Claude Code checked every endpoint with automated tests against a separate test database.
-- **My part:** I set up the MongoDB Atlas cluster and the `.env` file myself, made the decisions about the data model and the project setup, and ran the Postman tests and took all the screenshots myself.
+- **My part:** I set up the MongoDB Atlas cluster and the `.env` file myself, made the decisions about the data model and the project setup, and ran the Postman tests and took all the screenshots myself (friggin pain, it was, grumble grumble).
