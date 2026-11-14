@@ -26,10 +26,10 @@ const create = async (req, res) => {
   }
 }
 
-// GET /api/users — get all users (public fields only)
+// GET /api/users — get all users (admin only; no password hashes)
 const list = async (req, res) => {
   try {
-    const users = await User.find().select('name email updated created')
+    const users = await User.find().select('name email role updated created')
     res.json(users)
   } catch (err) {
     return res.status(400).json({ error: errorHandler.getErrorMessage(err) })
@@ -77,11 +77,11 @@ const remove = async (req, res) => {
   }
 }
 
-// DELETE /api/users — remove all users
+// DELETE /api/users — remove all users except admins (so the site is never left without one)
 const removeAll = async (req, res) => {
   try {
-    const result = await User.deleteMany({})
-    res.json({ message: 'All users deleted', deletedCount: result.deletedCount })
+    const result = await User.deleteMany({ role: { $ne: 'admin' } })
+    res.json({ message: 'All non-admin users deleted', deletedCount: result.deletedCount })
   } catch (err) {
     return res.status(400).json({ error: errorHandler.getErrorMessage(err) })
   }

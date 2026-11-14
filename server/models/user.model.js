@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema({
          email: {
            type: String,
             trim: true,
+          lowercase: true, // so sign-in isn't case-sensitive
           unique: 'Email already exists',
           match: [/.+\@.+\..+/, 'Please fill a valid email address'],
           required: 'Email is required'
@@ -25,7 +26,15 @@ const UserSchema = new mongoose.Schema({
           type: String,
           required: 'Password is required'
           },
-         salt: String
+         salt: String,
+          // "admin" can create/update/delete everything; "user" can only view.
+          // New sign-ups are always "user" (role isn't accepted from request bodies);
+          // the admin account is created in the database by scripts/seed-admin.js.
+          role: {
+          type: String,
+          enum: { values: ['user', 'admin'], message: 'Role must be user or admin' },
+          default: 'user'
+          }
       });
         UserSchema.virtual('password')
     .set(function(password) {

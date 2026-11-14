@@ -1,14 +1,16 @@
 {
   "name": "myportfolio",
   "version": "1.0.0",
-  "description": "COMP229 Assignment 2 - Portfolio REST API (Node.js, Express, MongoDB)",
+  "description": "COMP229 Assignments 2-3 - Full-stack portfolio (React, Express, MongoDB)",
   "type": "module",
   "author": "Colby Smith",
   "license": "MIT",
   "scripts": {
     "start": "node server.js",
     "server": "nodemon -L server.js",
-    "dev": "npm --prefix client run dev"
+    "dev": "npm --prefix client run dev",
+    "seed:admin": "node scripts/seed-admin.js",
+    "seed:content": "node scripts/seed-content.js"
   },
   "dependencies": {
     "body-parser": "^2.2.2",
