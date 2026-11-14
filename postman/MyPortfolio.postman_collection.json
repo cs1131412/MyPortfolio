@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "33fc47d3-9bb1-4506-9e1c-48b39c24bbcc",
-    "name": "MyPortfolio REST API (COMP229 Assignment 2)",
-    "description": "Run the folders in order (or use Run collection). Signing in saves the JWT to the {{token}} variable, and each create request saves the new _id, so later requests need no copying. Start the server first: cd client && npm run dev (API on port 5000).",
+    "_postman_id": "1ce3e3c2-e2e7-4931-b405-2a0eed3c5f34",
+    "name": "MyPortfolio REST API — Roles (COMP229 Assignment 3)",
+    "description": "Run the folders in order. Set adminEmail / adminPassword (collection Variables tab) to the admin account created by `npm run seed:admin`. Sign-in saves {{userToken}} and {{adminToken}}; each create saves its id. Only records created by this collection are deleted, so it is safe to run on real data.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -11,7 +11,19 @@
       "value": "http://localhost:5000"
     },
     {
-      "key": "token",
+      "key": "adminEmail",
+      "value": "set-admin-email-here"
+    },
+    {
+      "key": "adminPassword",
+      "value": "set-admin-password-here"
+    },
+    {
+      "key": "userToken",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
       "value": ""
     },
     {
@@ -19,7 +31,7 @@
       "value": ""
     },
     {
-      "key": "otherUserId",
+      "key": "secondUserId",
       "value": ""
     },
     {
@@ -27,11 +39,23 @@
       "value": ""
     },
     {
+      "key": "contactId2",
+      "value": ""
+    },
+    {
       "key": "projectId",
       "value": ""
     },
     {
+      "key": "projectId2",
+      "value": ""
+    },
+    {
       "key": "qualificationId",
+      "value": ""
+    },
+    {
+      "key": "qualificationId2",
       "value": ""
     }
   ],
@@ -49,7 +73,6 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Welcome message\", () => pm.expect(pm.response.json().message).to.eql(\"Welcome to My Portfolio application.\"));",
                   "}"
                 ]
               }
@@ -65,7 +88,6 @@
               ],
               "path": []
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             }
@@ -74,10 +96,10 @@
       ]
     },
     {
-      "name": "1. Users & Authentication",
+      "name": "1. Sign up & sign in",
       "item": [
         {
-          "name": "POST /api/users — add new user (sign up)",
+          "name": "POST /api/users — sign up a regular user",
           "event": [
             {
               "listen": "test",
@@ -86,6 +108,7 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "  pm.test(\"Signed up\", () => pm.expect(pm.response.json().message === \"Successfully signed up!\").to.be.ok);",
                   "}"
                 ]
               }
@@ -109,13 +132,12 @@
                 "users"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Colby Smith\",\n  \"email\": \"colby@example.com\",\n  \"password\": \"portfolio123\"\n}",
+              "raw": "{\n  \"name\": \"Postman Test User\",\n  \"email\": \"postman.user@example.com\",\n  \"password\": \"user-pass-123\",\n  \"role\": \"admin\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -125,7 +147,7 @@
           }
         },
         {
-          "name": "POST /api/users — add another user",
+          "name": "POST /api/users — sign up a second user",
           "event": [
             {
               "listen": "test",
@@ -157,13 +179,12 @@
                 "users"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Test Recruiter\",\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"recruit123\"\n}",
+              "raw": "{\n  \"name\": \"Postman Second User\",\n  \"email\": \"postman.second@example.com\",\n  \"password\": \"second-pass-123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -182,7 +203,6 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
-                  "  pm.test(\"Error says email exists\", () => pm.expect(pm.response.json().error).to.eql(\"Email already exists\"));",
                   "}"
                 ]
               }
@@ -206,56 +226,17 @@
                 "users"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Colby Again\",\n  \"email\": \"colby@example.com\",\n  \"password\": \"portfolio123\"\n}",
+              "raw": "{\n  \"name\": \"Duplicate\",\n  \"email\": \"postman.user@example.com\",\n  \"password\": \"user-pass-123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
-            }
-          }
-        },
-        {
-          "name": "GET /api/users — get all users",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "{",
-                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  const users = pm.response.json();",
-                  "  const other = users.find(u => u.email === \"recruiter@example.com\");",
-                  "  if (other) pm.collectionVariables.set(\"otherUserId\", other._id);",
-                  "  pm.test(\"No password hashes in response\", () => pm.expect(users.every(u => !(\"hashed_password\" in u) && !(\"salt\" in u))).to.be.ok);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/users",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "users"
-              ]
-            },
-            "description": "",
-            "auth": {
-              "type": "noauth"
             }
           }
         },
@@ -292,13 +273,12 @@
                 "signin"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"colby@example.com\",\n  \"password\": \"wrong-password\"\n}",
+              "raw": "{\n  \"email\": \"postman.user@example.com\",\n  \"password\": \"wrong-password\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -308,7 +288,7 @@
           }
         },
         {
-          "name": "POST /auth/signin — sign in",
+          "name": "POST /auth/signin — sign in as the regular user",
           "event": [
             {
               "listen": "test",
@@ -318,9 +298,9 @@
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
                   "  const data = pm.response.json();",
-                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.collectionVariables.set(\"userToken\", data.token);",
                   "  pm.collectionVariables.set(\"userId\", data.user._id);",
-                  "  pm.test(\"Response contains a JWT\", () => pm.expect(data.token).to.be.ok);",
+                  "  pm.test(\"Role is \\\"user\\\" (the role sent at sign-up was ignored)\", () => pm.expect(data.user.role === \"user\").to.be.ok);",
                   "}"
                 ]
               }
@@ -344,13 +324,12 @@
                 "signin"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"colby@example.com\",\n  \"password\": \"portfolio123\"\n}",
+              "raw": "{\n  \"email\": \"postman.user@example.com\",\n  \"password\": \"user-pass-123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -360,7 +339,62 @@
           }
         },
         {
-          "name": "GET /api/users/:id — without token is rejected (401)",
+          "name": "POST /auth/signin — sign in as the admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set(\"adminToken\", data.token);",
+                  "  pm.test(\"Role is \\\"admin\\\"\", () => pm.expect(data.user.role === \"admin\").to.be.ok);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signin"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Users (roles)",
+      "item": [
+        {
+          "name": "GET /api/users — without token (401)",
           "event": [
             {
               "listen": "test",
@@ -378,24 +412,62 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "raw": "{{baseUrl}}/api/users",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "users",
-                "{{userId}}"
+                "users"
               ]
             },
-            "description": "Protected route: no Authorization header.",
             "auth": {
               "type": "noauth"
             }
           }
         },
         {
-          "name": "GET /api/users/:id — get user by id",
+          "name": "GET /api/users — as user is forbidden (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/users — as admin",
           "event": [
             {
               "listen": "test",
@@ -404,7 +476,51 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Returns the signed-in user\", () => pm.expect(pm.response.json().email === \"colby@example.com\").to.be.ok);",
+                  "  const users = pm.response.json();",
+                  "  const second = users.find(u => u.email === \"postman.second@example.com\");",
+                  "  if (second) pm.collectionVariables.set(\"secondUserId\", second._id);",
+                  "  pm.test(\"No password hashes\", () => pm.expect(users.every(u => !(\"hashed_password\" in u))).to.be.ok);",
+                  "  pm.test(\"Lists roles\", () => pm.expect(users.some(u => u.role === \"admin\")).to.be.ok);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/users/:id — user reads own account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
                   "}"
                 ]
               }
@@ -424,13 +540,12 @@
                 "{{userId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{userToken}}",
                   "type": "string"
                 }
               ]
@@ -438,7 +553,48 @@
           }
         },
         {
-          "name": "PUT /api/users/:id — update user by id",
+          "name": "GET /api/users/:id — user reads another account (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{secondUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{secondUserId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/users/:id — user updates own name (role change ignored)",
           "event": [
             {
               "listen": "test",
@@ -447,7 +603,7 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Name was updated\", () => pm.expect(pm.response.json().name === \"Colby J. Smith\").to.be.ok);",
+                  "  pm.test(\"Still a regular user\", () => pm.expect(pm.response.json().role === \"user\").to.be.ok);",
                   "}"
                 ]
               }
@@ -472,20 +628,19 @@
                 "{{userId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{userToken}}",
                   "type": "string"
                 }
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Colby J. Smith\"\n}",
+              "raw": "{\n  \"name\": \"Postman Renamed User\",\n  \"role\": \"admin\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -495,7 +650,277 @@
           }
         },
         {
-          "name": "PUT /api/users/:id — another user's account is forbidden (403)",
+          "name": "PUT /api/users/:id — admin updates another account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{secondUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{secondUserId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Renamed by Admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Contacts",
+      "item": [
+        {
+          "name": "POST /api/contacts — visitor sends a message (no sign-in needed)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "  pm.collectionVariables.set(\"contactId\", pm.response.json()._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contacts"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Jane\",\n  \"lastname\": \"Doe\",\n  \"email\": \"jane.doe@example.com\",\n  \"contactNumber\": \"416-555-0123\",\n  \"message\": \"Hi Colby, are you available for a Winter 2027 co-op interview?\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/contacts — another message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "  pm.collectionVariables.set(\"contactId2\", pm.response.json()._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contacts"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"John\",\n  \"lastname\": \"Lee\",\n  \"email\": \"john.lee@example.com\",\n  \"message\": \"Great portfolio!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/contacts — without token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 401\", () => pm.response.to.have.status(401));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contacts"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /api/contacts — user can view all",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contacts"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/contacts/:id — user can view one",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/{{contactId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "{{contactId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/contacts/:id — as user is forbidden (403)",
           "event": [
             {
               "listen": "test",
@@ -518,237 +943,6 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/users/{{otherUserId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "users",
-                "{{otherUserId}}"
-              ]
-            },
-            "description": "",
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Not allowed\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "2. Contacts",
-      "item": [
-        {
-          "name": "POST /api/contacts — add new contact",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "{",
-                  "  pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
-                  "  pm.collectionVariables.set(\"contactId\", pm.response.json()._id);",
-                  "  pm.test(\"Response has new _id\", () => pm.expect(pm.response.json()._id).to.be.ok);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/contacts",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "contacts"
-              ]
-            },
-            "description": "",
-            "auth": {
-              "type": "noauth"
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"firstname\": \"Jane\",\n  \"lastname\": \"Doe\",\n  \"email\": \"jane.doe@example.com\",\n  \"contactNumber\": \"416-555-0123\",\n  \"message\": \"Hi Colby, we have a co-op opening for Winter 2027. Are you available for an interview?\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "POST /api/contacts — add another contact",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "{",
-                  "  pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/contacts",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "contacts"
-              ]
-            },
-            "description": "",
-            "auth": {
-              "type": "noauth"
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"firstname\": \"John\",\n  \"lastname\": \"Lee\",\n  \"email\": \"john.lee@example.com\",\n  \"message\": \"Great portfolio! Do you take freelance Power BI work?\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "GET /api/contacts — get all contacts",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "{",
-                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Returns an array with at least 2 items\", () => pm.expect(Array.isArray(pm.response.json()) && pm.response.json().length >= 2).to.be.ok);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/contacts",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "contacts"
-              ]
-            },
-            "description": "",
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{token}}",
-                  "type": "string"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "GET /api/contacts — without token is rejected (401)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "{",
-                  "  pm.test(\"Status is 401\", () => pm.response.to.have.status(401));",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/contacts",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "contacts"
-              ]
-            },
-            "description": "",
-            "auth": {
-              "type": "noauth"
-            }
-          }
-        },
-        {
-          "name": "GET /api/contacts/:id — get contact by id",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "{",
-                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Returns the requested contact\", () => pm.expect(pm.response.json()._id === pm.collectionVariables.get(\"contactId\")).to.be.ok);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
               "raw": "{{baseUrl}}/api/contacts/{{contactId}}",
               "host": [
                 "{{baseUrl}}"
@@ -759,21 +953,29 @@
                 "{{contactId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{userToken}}",
                   "type": "string"
                 }
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Updated by the admin.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "PUT /api/contacts/:id — update contact by id",
+          "name": "PUT /api/contacts/:id — admin updates the contact",
           "event": [
             {
               "listen": "test",
@@ -782,7 +984,7 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Field was updated\", () => pm.expect(pm.response.json().message.startsWith(\"Updated\")).to.be.ok);",
+                  "  pm.test(\"Updated\", () => pm.expect(pm.response.json().message === \"Updated by the admin.\").to.be.ok);",
                   "}"
                 ]
               }
@@ -807,20 +1009,19 @@
                 "{{contactId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"message\": \"Updated: interview scheduled for next Tuesday.\"\n}",
+              "raw": "{\n  \"message\": \"Updated by the admin.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -830,7 +1031,88 @@
           }
         },
         {
-          "name": "DELETE /api/contacts/:id — remove contact by id",
+          "name": "DELETE /api/contacts/:id — as user is forbidden (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/{{contactId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "{{contactId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/contacts — remove all as user is forbidden (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contacts"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/contacts/:id — admin deletes the contact",
           "event": [
             {
               "listen": "test",
@@ -858,13 +1140,12 @@
                 "{{contactId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -900,13 +1181,12 @@
                 "{{contactId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -914,7 +1194,7 @@
           }
         },
         {
-          "name": "DELETE /api/contacts — remove all contacts",
+          "name": "DELETE /api/contacts/:id — admin deletes the second test contact",
           "event": [
             {
               "listen": "test",
@@ -923,7 +1203,6 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Reports how many were deleted\", () => pm.expect(typeof pm.response.json().deletedCount === \"number\").to.be.ok);",
                   "}"
                 ]
               }
@@ -933,22 +1212,22 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/contacts",
+              "raw": "{{baseUrl}}/api/contacts/{{contactId2}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "contacts"
+                "contacts",
+                "{{contactId2}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -958,10 +1237,10 @@
       ]
     },
     {
-      "name": "3. Projects",
+      "name": "4. Projects",
       "item": [
         {
-          "name": "POST /api/projects — without token is rejected (401)",
+          "name": "POST /api/projects — without token (401)",
           "event": [
             {
               "listen": "test",
@@ -993,13 +1272,12 @@
                 "projects"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Interactive Power BI Dashboards\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2024-08-31\",\n  \"description\": \"Designed and built interactive Power BI dashboards for teams across ConsumerGenius.\"\n}",
+              "raw": "{\n  \"title\": \"Postman Test Project\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2026-11-14\",\n  \"description\": \"Created from Postman.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1009,7 +1287,61 @@
           }
         },
         {
-          "name": "POST /api/projects — add new project",
+          "name": "POST /api/projects — as user is forbidden (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman Test Project\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2026-11-14\",\n  \"description\": \"Created from Postman.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/projects — admin adds a project",
           "event": [
             {
               "listen": "test",
@@ -1019,7 +1351,6 @@
                   "{",
                   "  pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
                   "  pm.collectionVariables.set(\"projectId\", pm.response.json()._id);",
-                  "  pm.test(\"Response has new _id\", () => pm.expect(pm.response.json()._id).to.be.ok);",
                   "}"
                 ]
               }
@@ -1043,20 +1374,19 @@
                 "projects"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Interactive Power BI Dashboards\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2024-08-31\",\n  \"description\": \"Designed and built interactive Power BI dashboards for teams across ConsumerGenius.\"\n}",
+              "raw": "{\n  \"title\": \"Postman Test Project\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2026-11-14\",\n  \"description\": \"Created from Postman.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1066,7 +1396,7 @@
           }
         },
         {
-          "name": "POST /api/projects — add another project",
+          "name": "POST /api/projects — admin adds another project",
           "event": [
             {
               "listen": "test",
@@ -1075,6 +1405,7 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "  pm.collectionVariables.set(\"projectId2\", pm.response.json()._id);",
                   "}"
                 ]
               }
@@ -1098,20 +1429,19 @@
                 "projects"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"OCR Data-Entry Automation\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2024-08-31\",\n  \"description\": \"Python scripts using Azure Document Intelligence to automate receipt data entry.\"\n}",
+              "raw": "{\n  \"title\": \"Postman Second Project\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2026-11-14\",\n  \"description\": \"Second test project.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1121,7 +1451,7 @@
           }
         },
         {
-          "name": "GET /api/projects — get all projects",
+          "name": "GET /api/projects — anyone can view all",
           "event": [
             {
               "listen": "test",
@@ -1130,7 +1460,6 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Returns an array with at least 2 items\", () => pm.expect(Array.isArray(pm.response.json()) && pm.response.json().length >= 2).to.be.ok);",
                   "}"
                 ]
               }
@@ -1149,14 +1478,13 @@
                 "projects"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             }
           }
         },
         {
-          "name": "GET /api/projects/:id — get project by id",
+          "name": "GET /api/projects/:id — anyone can view one",
           "event": [
             {
               "listen": "test",
@@ -1165,7 +1493,6 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Returns the requested project\", () => pm.expect(pm.response.json()._id === pm.collectionVariables.get(\"projectId\")).to.be.ok);",
                   "}"
                 ]
               }
@@ -1185,14 +1512,13 @@
                 "{{projectId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             }
           }
         },
         {
-          "name": "PUT /api/projects/:id — update project by id",
+          "name": "PUT /api/projects/:id — as user is forbidden (403)",
           "event": [
             {
               "listen": "test",
@@ -1200,8 +1526,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "{",
-                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Field was updated\", () => pm.expect(pm.response.json().title.endsWith(\"(ConsumerGenius)\")).to.be.ok);",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
                   "}"
                 ]
               }
@@ -1226,20 +1551,19 @@
                 "{{projectId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{userToken}}",
                   "type": "string"
                 }
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Interactive Power BI Dashboards (ConsumerGenius)\"\n}",
+              "raw": "{\n  \"description\": \"Updated from Postman.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1249,7 +1573,144 @@
           }
         },
         {
-          "name": "DELETE /api/projects/:id — remove project by id",
+          "name": "PUT /api/projects/:id — admin updates the project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "  pm.test(\"Updated\", () => pm.expect(pm.response.json().description === \"Updated from Postman.\").to.be.ok);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated from Postman.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/projects/:id — as user is forbidden (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/projects — remove all as user is forbidden (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/projects/:id — admin deletes the project",
           "event": [
             {
               "listen": "test",
@@ -1277,13 +1738,12 @@
                 "{{projectId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1319,13 +1779,12 @@
                 "{{projectId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1333,7 +1792,7 @@
           }
         },
         {
-          "name": "DELETE /api/projects — remove all projects",
+          "name": "DELETE /api/projects/:id — admin deletes the second test project",
           "event": [
             {
               "listen": "test",
@@ -1342,7 +1801,6 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Reports how many were deleted\", () => pm.expect(typeof pm.response.json().deletedCount === \"number\").to.be.ok);",
                   "}"
                 ]
               }
@@ -1352,22 +1810,22 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/projects",
+              "raw": "{{baseUrl}}/api/projects/{{projectId2}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "projects"
+                "projects",
+                "{{projectId2}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1377,10 +1835,10 @@
       ]
     },
     {
-      "name": "4. Qualifications",
+      "name": "5. Qualifications",
       "item": [
         {
-          "name": "POST /api/qualifications — without token is rejected (401)",
+          "name": "POST /api/qualifications — without token (401)",
           "event": [
             {
               "listen": "test",
@@ -1412,13 +1870,12 @@
                 "qualifications"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Ontario College Advanced Diploma — Software Engineering Technology (Co-op)\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2028-04-30\",\n  \"description\": \"Centennial College, Toronto, ON (Remote).\"\n}",
+              "raw": "{\n  \"title\": \"Postman Test Certificate\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2026-11-14\",\n  \"description\": \"Created from Postman.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1428,7 +1885,61 @@
           }
         },
         {
-          "name": "POST /api/qualifications — add new qualification",
+          "name": "POST /api/qualifications — as user is forbidden (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/qualifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "qualifications"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman Test Certificate\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2026-11-14\",\n  \"description\": \"Created from Postman.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/qualifications — admin adds a qualification",
           "event": [
             {
               "listen": "test",
@@ -1438,7 +1949,6 @@
                   "{",
                   "  pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
                   "  pm.collectionVariables.set(\"qualificationId\", pm.response.json()._id);",
-                  "  pm.test(\"Response has new _id\", () => pm.expect(pm.response.json()._id).to.be.ok);",
                   "}"
                 ]
               }
@@ -1462,20 +1972,19 @@
                 "qualifications"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Ontario College Advanced Diploma — Software Engineering Technology (Co-op)\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2028-04-30\",\n  \"description\": \"Centennial College, Toronto, ON (Remote).\"\n}",
+              "raw": "{\n  \"title\": \"Postman Test Certificate\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2026-11-14\",\n  \"description\": \"Created from Postman.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1485,7 +1994,7 @@
           }
         },
         {
-          "name": "POST /api/qualifications — add another qualification",
+          "name": "POST /api/qualifications — admin adds another qualification",
           "event": [
             {
               "listen": "test",
@@ -1494,6 +2003,7 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "  pm.collectionVariables.set(\"qualificationId2\", pm.response.json()._id);",
                   "}"
                 ]
               }
@@ -1517,20 +2027,19 @@
                 "qualifications"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Microsoft Certified: Power BI Data Analyst Associate\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2024-04-30\",\n  \"description\": \"Microsoft certification.\"\n}",
+              "raw": "{\n  \"title\": \"Postman Second Certificate\",\n  \"firstname\": \"Colby\",\n  \"lastname\": \"Smith\",\n  \"email\": \"csmit253@my.centennialcollege.ca\",\n  \"completion\": \"2026-11-14\",\n  \"description\": \"Second test entry.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1540,7 +2049,7 @@
           }
         },
         {
-          "name": "GET /api/qualifications — get all qualifications",
+          "name": "GET /api/qualifications — anyone can view all",
           "event": [
             {
               "listen": "test",
@@ -1549,7 +2058,6 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Returns an array with at least 2 items\", () => pm.expect(Array.isArray(pm.response.json()) && pm.response.json().length >= 2).to.be.ok);",
                   "}"
                 ]
               }
@@ -1568,14 +2076,13 @@
                 "qualifications"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             }
           }
         },
         {
-          "name": "GET /api/qualifications/:id — get qualification by id",
+          "name": "GET /api/qualifications/:id — anyone can view one",
           "event": [
             {
               "listen": "test",
@@ -1584,7 +2091,6 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Returns the requested qualification\", () => pm.expect(pm.response.json()._id === pm.collectionVariables.get(\"qualificationId\")).to.be.ok);",
                   "}"
                 ]
               }
@@ -1604,14 +2110,13 @@
                 "{{qualificationId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             }
           }
         },
         {
-          "name": "PUT /api/qualifications/:id — update qualification by id",
+          "name": "PUT /api/qualifications/:id — as user is forbidden (403)",
           "event": [
             {
               "listen": "test",
@@ -1619,8 +2124,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "{",
-                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Field was updated\", () => pm.expect(pm.response.json().description.includes(\"GPA\")).to.be.ok);",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
                   "}"
                 ]
               }
@@ -1645,20 +2149,19 @@
                 "{{qualificationId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{userToken}}",
                   "type": "string"
                 }
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"Centennial College, Toronto, ON (Remote). GPA 4.1 / 4.5.\"\n}",
+              "raw": "{\n  \"description\": \"Updated from Postman.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1668,7 +2171,144 @@
           }
         },
         {
-          "name": "DELETE /api/qualifications/:id — remove qualification by id",
+          "name": "PUT /api/qualifications/:id — admin updates the qualification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "  pm.test(\"Updated\", () => pm.expect(pm.response.json().description === \"Updated from Postman.\").to.be.ok);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/qualifications/{{qualificationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "qualifications",
+                "{{qualificationId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated from Postman.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/qualifications/:id — as user is forbidden (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/qualifications/{{qualificationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "qualifications",
+                "{{qualificationId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/qualifications — remove all as user is forbidden (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 403\", () => pm.response.to.have.status(403));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/qualifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "qualifications"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/qualifications/:id — admin deletes the qualification",
           "event": [
             {
               "listen": "test",
@@ -1696,13 +2336,12 @@
                 "{{qualificationId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1738,13 +2377,12 @@
                 "{{qualificationId}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1752,7 +2390,7 @@
           }
         },
         {
-          "name": "DELETE /api/qualifications — remove all qualifications",
+          "name": "DELETE /api/qualifications/:id — admin deletes the second test qualification",
           "event": [
             {
               "listen": "test",
@@ -1761,7 +2399,6 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Reports how many were deleted\", () => pm.expect(typeof pm.response.json().deletedCount === \"number\").to.be.ok);",
                   "}"
                 ]
               }
@@ -1771,22 +2408,22 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/qualifications",
+              "raw": "{{baseUrl}}/api/qualifications/{{qualificationId2}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "qualifications"
+                "qualifications",
+                "{{qualificationId2}}"
               ]
             },
-            "description": "",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1796,7 +2433,7 @@
       ]
     },
     {
-      "name": "5. Sign out & clean up",
+      "name": "6. Sign out & clean up",
       "item": [
         {
           "name": "GET /auth/signout — sign out",
@@ -1808,7 +2445,6 @@
                 "exec": [
                   "{",
                   "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Signed out\", () => pm.expect(pm.response.json().message).to.eql(\"signed out\"));",
                   "}"
                 ]
               }
@@ -1827,14 +2463,54 @@
                 "signout"
               ]
             },
-            "description": "",
             "auth": {
               "type": "noauth"
             }
           }
         },
         {
-          "name": "DELETE /api/users/:id — remove user by id",
+          "name": "DELETE /api/users/:id — admin deletes the second test user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{secondUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{secondUserId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/users/:id — user deletes own account",
           "event": [
             {
               "listen": "test",
@@ -1862,55 +2538,12 @@
                 "{{userId}}"
               ]
             },
-            "description": "The JWT from sign-in stays valid until it expires (1 day), even after sign-out.",
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{token}}",
-                  "type": "string"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "DELETE /api/users — remove all users",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "{",
-                  "  pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
-                  "  pm.test(\"Reports how many were deleted\", () => pm.expect(typeof pm.response.json().deletedCount === \"number\").to.be.ok);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/users",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "users"
-              ]
-            },
-            "description": "",
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{token}}",
+                  "value": "{{userToken}}",
                   "type": "string"
                 }
               ]

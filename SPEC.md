@@ -123,3 +123,50 @@ Behaviour:
 
 - Connecting the React pages to the API (optional extra: the A1 contact form could `POST /api/contacts`).
 - Deploying the backend.
+
+---
+
+# Assignment 3 — Front End Integration, Roles
+
+Source: `Assignment 3.docx` (max mark 100, 5% of the course). Builds on the Assignment 2 API above (tagged `assignment-2`).
+
+## A3-1. Requirements
+
+| ID | Requirement | Implementation |
+|---|---|---|
+| A3-AUTH | JWT sign in/out and protected routes (Part I) | Done in A2; tokens now carry the role |
+| A3-FORMS | React forms with state: Sign Up, Sign In, Qualification, Project; Contact updated | `SignUp`, `SignIn`, `EntryForm` (projects and qualifications), `ContactForm` |
+| A3-INTEG | Front end consumes the API | `api/api.js` and `useCollection`; Vite proxies `/api` and `/auth` |
+| A3-CRUD | CRUD in the UI for contacts, qualifications and projects | Projects and Education pages (admin controls); Messages page |
+| A3-ROLES | Admin: full CRUD; User: view only | `role` on the user; `requireAdmin` on all writes; UI shows controls only to the admin |
+| A3-ADMIN | Admin credentials stored in MongoDB; others sign up | `npm run seed:admin` (credentials from `.env`); sign-ups are always `user` |
+| A3-STORE | All entries from the front end saved to the database | Contact, project, qualification and user forms all POST/PUT to the API |
+| A3-GIT | Code pushed to GitHub | Same repository, A2 tagged |
+
+## A3-2. Permission Rules
+
+| Resource | Anyone | Signed-in user | Admin only |
+|---|---|---|---|
+| projects, qualifications | read | read | create, update, delete |
+| contacts | create (contact form) | read | update, delete |
+| users | sign up | read/update/delete own account | list, manage any account, delete all non-admins |
+
+Sign-up requests cannot set a role, and the role is re-checked in the database on every admin request.
+
+## A3-3. Validation Checklist
+
+✅ = verified 2026-11-14 against a separate test database.
+
+| Check | ✓ |
+|---|---|
+| API permission tests (42 checks: 401/403/200 for anonymous, user and admin on every resource) | ✅ |
+| End-to-end UI test (27 checks): visitor contact form; protected Messages redirect; sign-up as User (view only); admin add/edit/delete projects, qualifications and messages; sign out | ✅ |
+| Postman collection via Newman: 55 requests and 64 assertions, twice, real content left untouched | ✅ |
+| Real run: site and proxied API on localhost and the LAN address; real admin signs in | ✅ |
+| Client lint and build clean; no secrets in Git (`.env`, admin password) | ✅ |
+
+## A3-4. Submission
+
+- [ ] Zip of the project (no `node_modules`, no `.env`, not `.rar`)
+- [x] GitHub link: https://github.com/cs1131412/MyPortfolio
+- [ ] Word document with screenshots
