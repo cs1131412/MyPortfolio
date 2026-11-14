@@ -1,9 +1,13 @@
-// Card for one project: image, title, context line, my role, the outcome, and tools used.
-function ProjectCard({ project }) {
+// Card for one project from the database: image, title, completion date and
+// description. Admins also see Edit and Delete buttons.
+import { imageForProject } from '../data/projectImages.js'
+import { formatMonthYear } from '../utils/format.js'
+
+function ProjectCard({ project, isAdmin, onEdit, onDelete }) {
   return (
     <article className="card project-card">
       <img
-        src={project.image}
+        src={imageForProject(project.title)}
         alt={`Illustration for ${project.title}`}
         className="card-image"
         width="640"
@@ -11,19 +15,19 @@ function ProjectCard({ project }) {
       />
       <div className="card-body">
         <h2>{project.title}</h2>
-        <p className="card-context">{project.context}</p>
+        {project.completion && <p className="card-context">Completed {formatMonthYear(project.completion)}</p>}
+        {project.description && <p>{project.description}</p>}
 
-        <h3>My role</h3>
-        <p>{project.role}</p>
-
-        <h3>Outcome</h3>
-        <p>{project.outcome}</p>
-
-        <ul className="tag-list" aria-label="Tools and skills used">
-          {project.tools.map((tool) => (
-            <li key={tool}>{tool}</li>
-          ))}
-        </ul>
+        {isAdmin && (
+          <div className="admin-actions">
+            <button type="button" className="button small" onClick={() => onEdit(project)}>
+              Edit
+            </button>
+            <button type="button" className="button small danger" onClick={() => onDelete(project)}>
+              Delete
+            </button>
+          </div>
+        )}
       </div>
     </article>
   )

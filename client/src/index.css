@@ -536,3 +536,229 @@ img {
     justify-content: center;
   }
 }
+
+/* ======================================================================
+   Assignment 3: accounts, admin controls and database-backed pages
+   ====================================================================== */
+
+:root {
+  --color-error-bg: #fdecea;
+  --color-info-bg: #e8f0fe;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-error-bg: #2e1a1a;
+    --color-info-bg: #172338;
+  }
+}
+
+/* ---------- Buttons ---------- */
+
+button.button,
+a.button {
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.button.small {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+.button.danger {
+  background: transparent;
+  color: var(--color-error);
+  box-shadow: inset 0 0 0 2px var(--color-error);
+}
+
+.button.full-width {
+  width: 100%;
+}
+
+/* ---------- Notices (success / error / info banners) ---------- */
+
+.notice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
+.notice.success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.notice.error {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.notice.info {
+  background: var(--color-info-bg);
+  color: var(--color-accent);
+}
+
+.notice-close {
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.status {
+  color: var(--color-muted);
+}
+
+/* ---------- Header account area ---------- */
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.account-name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.role-badge {
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-border);
+  color: var(--color-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.role-badge.admin {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+/* ---------- Sign In / Sign Up ---------- */
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-form h1 {
+  margin-top: 0;
+}
+
+.auth-form .form-field input,
+.entry-form .form-field input,
+.entry-form .form-field textarea,
+.message-edit .form-field input,
+.message-edit .form-field textarea {
+  width: 100%;
+}
+
+.auth-switch {
+  margin: 1rem 0 0;
+  text-align: center;
+}
+
+/* ---------- Pages with admin controls ---------- */
+
+/* Title on the left, "+ Add …" button on the right */
+.page-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.page-heading h1 {
+  margin-bottom: 0.5rem;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.entry-form {
+  margin-bottom: 1.5rem;
+}
+
+.entry-form h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+}
+
+.form-row.three {
+  grid-template-columns: 1fr 1fr 1.4fr;
+}
+
+.project-card .card-body p {
+  margin: 0 0 0.5rem;
+}
+
+/* ---------- Messages ---------- */
+
+.message-list {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+}
+
+.message-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.message-contact {
+  margin: 0;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.message-body {
+  margin: 0.75rem 0 0;
+  white-space: pre-wrap; /* keep the sender's line breaks */
+}
+
+@media (max-width: 700px) {
+  .form-row.three {
+    grid-template-columns: 1fr;
+  }
+}

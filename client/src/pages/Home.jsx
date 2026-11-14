@@ -1,12 +1,14 @@
 // Home page: welcome message, mission statement, and buttons leading to other pages.
-// After a contact form submission, also shows a thank-you message (data arrives
-// through React Router's location state — see ContactForm.jsx).
+// Also shows a short banner after a contact form submission, sign-in/sign-up or
+// sign-out (passed through React Router's location state).
 import { Link, useLocation } from 'react-router-dom'
 import profile from '../data/profile.js'
 
 function Home() {
   const location = useLocation()
   const contactSubmission = location.state?.contactSubmission
+  const welcomeName = location.state?.welcome
+  const signedOut = location.state?.signedOut
 
   return (
     <>
@@ -14,6 +16,16 @@ function Home() {
         <div className="confirmation" role="status">
           <strong>Thanks, {contactSubmission.firstName}!</strong> Your message was received.
           I&apos;ll get back to you at {contactSubmission.email}.
+        </div>
+      )}
+      {welcomeName && (
+        <div className="confirmation" role="status">
+          <strong>Welcome, {welcomeName}!</strong> You&apos;re signed in.
+        </div>
+      )}
+      {signedOut && (
+        <div className="confirmation" role="status">
+          You&apos;ve been signed out.
         </div>
       )}
 

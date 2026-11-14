@@ -1,8 +1,10 @@
 // Contact form: captures the visitor's details in state, validates them, and on a
-// valid submit sends the data to the Home page (via router state), which shows a
-// confirmation. Nothing is emailed or stored yet — there is no backend.
+// valid submit saves the message to the database (POST /api/contacts), then goes to
+// the Home page, which shows a thank-you. Anyone can send a message; no sign-in needed.
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { contactsApi } from '../api/api.js'
+import Notice from './Notice.jsx'
 
 const emptyForm = {
   firstName: '',
@@ -52,6 +54,8 @@ function FieldError({ name, errors }) {
 function ContactForm() {
   const [formValues, setFormValues] = useState(emptyForm)
   const [formErrors, setFormErrors] = useState({})
+  const [serverError, setServerError] = useState('')
+  const [sending, setSending] = useState(false)
   const navigate = useNavigate()
 
   // One change handler for every input, keyed by the input's "name" attribute.
@@ -60,22 +64,35 @@ function ContactForm() {
     setFormValues((previousValues) => ({ ...previousValues, [name]: value }))
   }
 
-  function handleContactSubmit(event) {
+  async function handleContactSubmit(event) {
     event.preventDefault() // stop the browser's default full-page form submission
 
     const errors = validateContactForm(formValues)
     setFormErrors(errors)
     if (Object.keys(errors).length > 0) return // stay on the page and show the errors
 
-    // Trim whitespace so the captured data is clean.
+    // Trim whitespace so the saved data is clean.
     const submission = Object.fromEntries(
       Object.entries(formValues).map(([field, value]) => [field, value.trim()]),
     )
 
-    console.log('Contact form submission:', submission)
-
-    // Redirect to Home, passing the submission along so Home can thank the visitor.
-    navigate('/', { state: { contactSubmission: submission } })
+    setSending(true)
+    setServerError('')
+    try {
+      // The API uses lowercase field names (firstname/lastname), as in the assignment spec.
+      await contactsApi.create({
+        firstname: submission.firstName,
+        lastname: submission.lastName,
+        email: submission.email,
+        contactNumber: submission.contactNumber,
+        message: submission.message,
+      })
+      // Redirect to Home, passing the submission along so Home can thank the visitor.
+      navigate('/', { state: { contactSubmission: submission } })
+    } catch (err) {
+      setServerError(`Your message could not be sent: ${err.message}`)
+      setSending(false)
+    }
   }
 
   // Shared props for an input: links it to its error message for screen readers.
@@ -92,6 +109,7 @@ function ContactForm() {
 
   return (
     <form className="contact-form" onSubmit={handleContactSubmit} noValidate>
+      <Notice notice={serverError ? { type: 'error', text: serverError } : null} />
       <div className="form-row">
         <div className="form-field">
           <label htmlFor="firstName">First name *</label>
@@ -127,7 +145,9 @@ function ContactForm() {
       </div>
 
       <p className="form-note">* Required</p>
-      <button type="submit" className="button">Send Message</button>
+      <button type="submit" className="button" disabled={sending}>
+        {sending ? 'Sending…' : 'Send Message'}
+      </button>
     </form>
   )
 }
